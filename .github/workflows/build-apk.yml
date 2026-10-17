@@ -41,13 +41,15 @@ steps:
         libtool \
         pkg-config
 
-  - name: Install Buildozer and Cython
-    run: |
-      python3 -m venv .venv
-      .venv/bin/pip install --upgrade pip setuptools wheel
-      .venv/bin/pip install "Cython==0.29.36"
-      .venv/bin/pip install buildozer
-      .venv/bin/python -m pip show Cython
+   
+      - name: Install Buildozer and Cython
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install --upgrade pip setuptools wheel
+          .venv/bin/pip install "Cython==0.29.36" buildozer
+          .venv/bin/python -c "import Cython; print(Cython.__version__)"
+          .venv/bin/python -m pip show buildozer
+ show Cython
 
   - name: Build Android APK
     run: |
