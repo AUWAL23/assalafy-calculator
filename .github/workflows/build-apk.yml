@@ -1,0 +1,57 @@
+
+name: Build ASSALAFY Calculator APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Get calculator code
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            git zip unzip \
+            python3-pip \
+            python3-venv \
+            autoconf \
+            libtool \
+            pkg-config \
+            zlib1g-dev \
+            libffi-dev \
+            libssl-dev \
+            cmake
+
+      - name: Install Buildozer
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install --upgrade pip setuptools
+          .venv/bin/pip install buildozer Cython==0.29.36
+
+      - name: Build Android APK
+        run: |
+          .venv/bin/buildozer -v android debug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASSALAFY-CALCULATOR-APK
+          path: bin/*.apk
+          if-no-files-found: error
+          retention-days: 7
+          
