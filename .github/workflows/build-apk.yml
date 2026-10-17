@@ -31,21 +31,12 @@ jobs:
           .venv/bin/python -m pip install --upgrade pip setuptools wheel
           .venv/bin/python -m pip install "Cython==0.29.36" "buildozer==1.5.0"
 
-      - name: Enable Android SDK license acceptance
-        run: |
-          if [ -f buildozer.spec ]; then
-            if grep -q '^android.accept_sdk_license' buildozer.spec; then
-              sed -i 's/^android.accept_sdk_license.*/android.accept_sdk_license = True/' buildozer.spec
-            else
-              echo 'android.accept_sdk_license = True' >> buildozer.spec
-            fi
-          else
-            echo "ERROR: buildozer.spec bai samu ba."
-            exit 1
-          fi
-
       - name: Build Android APK
+        env:
+          ANDROID_ACCEPT_SDK_LICENSE: "1"
         run: |
+          mkdir -p "$HOME/.android"
+          touch "$HOME/.android/repositories.cfg"
           source .venv/bin/activate
           buildozer -v android debug
 
