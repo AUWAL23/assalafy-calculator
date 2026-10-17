@@ -1,66 +1,64 @@
+
 name: Build ASSALAFY Calculator APK
 
 on:
-workflow_dispatch:
-push:
-branches:
-- main
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-build:
-runs-on: ubuntu-22.04
+  build:
+    runs-on: ubuntu-22.04
 
-steps:
-  - name: Get calculator code
-    uses: actions/checkout@v4
+    steps:
+      - name: Get calculator code
+        uses: actions/checkout@v4
 
-  - name: Install Java
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: '17'
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-  - name: Install system packages
-    run: |
-      sudo apt-get update
-      sudo apt-get install -y \
-        build-essential \
-        git \
-        zip \
-        unzip \
-        python3-pip \
-        python3-venv \
-        python3-dev \
-        libffi-dev \
-        libssl-dev \
-        zlib1g-dev \
-        libncurses-dev \
-        cmake \
-        autoconf \
-        automake \
-        libtool \
-        pkg-config
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            zip \
+            unzip \
+            python3-pip \
+            python3-venv \
+            python3-dev \
+            libffi-dev \
+            libssl-dev \
+            zlib1g-dev \
+            libncurses-dev \
+            cmake \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config
 
-  - name: Install Buildozer and Cython
-    run: |
-      python3 -m venv .venv
-      .venv/bin/pip install --upgrade pip setuptools wheel
-      .venv/bin/pip install "Cython==0.29.36"
-      .venv/bin/pip install "buildozer==1.5.0"
-      .venv/bin/python -c "import Cython; print(Cython.__version__)"
-      .venv/bin/python -m pip show buildozer
+      - name: Install Buildozer and Cython
+        run: |
+          python3 -m venv .venv
+          .venv/bin/pip install --upgrade pip setuptools wheel
+          .venv/bin/pip install "Cython==0.29.36"
+          .venv/bin/pip install "buildozer==1.5.0"
+          .venv/bin/python -c "import Cython; print(Cython.__version__)"
 
-  - name: Build Android APK
-    env:
-      P4A_RELEASE: "0"
-    run: |
-      export PATH="$PWD/.venv/bin:$PATH"
-      .venv/bin/buildozer -v android debug
+      - name: Build Android APK
+        run: |
+          export PATH="$PWD/.venv/bin:$PATH"
+          buildozer -v android debug
 
-  - name: Save APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: ASSALAFY-CALCULATOR-APK
-      path: bin/*.apk
-      if-no-files-found: error
-      retention-days: 7
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASSALAFY-CALCULATOR-APK
+          path: bin/*.apk
+          if-no-files-found: error
+          retention-days: 7
