@@ -46,4 +46,3 @@ steps:
       name: ASSALAFY-Calculator-APK
       path: bin/*.apk
       if-no-files-found: error
-          if-no-files-found: error
