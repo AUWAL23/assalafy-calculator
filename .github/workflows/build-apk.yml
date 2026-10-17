@@ -30,7 +30,19 @@ jobs:
           python3 -m venv .venv
           .venv/bin/python -m pip install --upgrade pip setuptools wheel
           .venv/bin/python -m pip install "Cython==0.29.36" "buildozer==1.5.0"
-          sed -i 's/include-system-site-packages = false/include-system-site-packages = true/' .venv/pyvenv.cfg
+
+      - name: Enable Android SDK license acceptance
+        run: |
+          if [ -f buildozer.spec ]; then
+            if grep -q '^android.accept_sdk_license' buildozer.spec; then
+              sed -i 's/^android.accept_sdk_license.*/android.accept_sdk_license = True/' buildozer.spec
+            else
+              echo 'android.accept_sdk_license = True' >> buildozer.spec
+            fi
+          else
+            echo "ERROR: buildozer.spec bai samu ba."
+            exit 1
+          fi
 
       - name: Build Android APK
         run: |
