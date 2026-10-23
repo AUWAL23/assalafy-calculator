@@ -26,25 +26,53 @@ jobs:
           sudo apt-get install -y \
             git zip unzip \
             openjdk-17-jdk \
-            autoconf libtool pkg-config \
+            autoconf automake libtool pkg-config \
             zlib1g-dev libncurses5-dev \
             libncursesw5-dev cmake \
-            libffi-dev libssl-dev
+            libffi-dev libssl-dev \
+            build-essential ccache \
+            libltdl-dev
 
       - name: Install Python tools
         run: |
-          python3 -m venv .venv
+          python -m venv .venv
           .venv/bin/python -m pip install --upgrade pip setuptools wheel
           .venv/bin/python -m pip install \
             "Cython==0.29.36" \
             "buildozer==1.5.0"
 
+      - name: Check project files
+        run: |
+          test -f main.py
+          test -f buildozer.spec
+          echo "Project files found."
+
       - name: Build Android APK
+        shell: bash
         run: |
           mkdir -p "$HOME/.android"
           touch "$HOME/.android/repositories.cfg"
+
           source .venv/bin/activate
-          yes | buildozer -v android debug
+
+          set +e
+          buildozer -v android debug 2>&1 | tee build.log
+          BUILD_STATUS=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$BUILD_STATUS" -ne 0 ]; then
+            echo "Buildozer failed. Showing final log lines:"
+            tail -n 100 build.log
+            exit "$BUILD_STATUS"
+          fi
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASSALAFY-Build-Log
+          path: build.log
+          if-no-files-found: warn
 
       - name: Upload APK
         if: success()
